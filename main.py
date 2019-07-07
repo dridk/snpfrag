@@ -3,13 +3,15 @@ from Bio.SeqIO import AbiIO
 
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
+from PySide2.QtCore import *
 from PySide2.QtCharts import QtCharts as qtc
 import sys 
 from scipy.signal import find_peaks
 from scipy.stats import linregress
 import numpy as np 
 
-
+from glob import glob
+from copy import copy
 
 class PeaksModel(object):
     def __init__(self):
@@ -33,6 +35,8 @@ class FragmentWidget(qtc.QChartView):
         super().__init__(parent)
         self.filename = filename
         self.record = SeqIO.read(self.filename, 'abi')
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.setMinimumHeight(400)
         self.build()
 
     def build(self):
@@ -43,6 +47,7 @@ class FragmentWidget(qtc.QChartView):
         self.model.find_peaks(rox_data)
 
         self.chart = qtc.QChart()
+        self.chart.setTitle(self.filename)
         self.rox_series = qtc.QLineSeries()
         self.rox_series.setColor(Qt.red)
 
@@ -54,6 +59,7 @@ class FragmentWidget(qtc.QChartView):
     
         for x, y in enumerate(rox_data):
             self.rox_series.append(self.model.predict(x),y)
+
 
         for x, y in enumerate(wt_data):
             self.wt_series.append(self.model.predict(x),y)
@@ -67,7 +73,8 @@ class FragmentWidget(qtc.QChartView):
         self.chart.addSeries(self.mt_series)
         self.chart.createDefaultAxes()
         self.setRubberBand(qtc.QChartView.RectangleRubberBand)
-        self.chart.axisX().setRange(0,500)
+        self.chart.axisX().setRange(0,180)
+        self.chart.axisY().setRange(0,2000)
 
         self.setChart(self.chart)
 
@@ -79,12 +86,25 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     
 
+    layout = QVBoxLayout()
+
     
-    view = FragmentWidget("test.fsa")
+    wlist = []
+    for filename in glob("data/*.fsa"):
+        w = FragmentWidget(filename)
+        wlist.append(w)
+        layout.addWidget(w)
 
-    view.resize(800,600)
+    widget = QWidget()
+    widget.setLayout(layout)
 
 
+
+
+
+    view = QScrollArea()
+    view.setWidgetResizable(True)
+    view.setWidget(widget)
     # rox_series = qtc.QLineSeries()
     # rox_series.setPen(QPen("red"))
     
