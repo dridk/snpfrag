@@ -50,11 +50,13 @@ class FragmentWidget(qtc.QChartView):
         
     def set_file(self, filename):
         self.filename = filename
-        self.record = SeqIO.read(self.filename, 'abi')
 
+    def compute(self):
+        self.record = SeqIO.read(self.filename, 'abi')
         rox_data = self.record.annotations["abif_raw"]["DATA4"]
         wt_data = self.record.annotations["abif_raw"]["DATA1"]
         mt_data = self.record.annotations["abif_raw"]["DATA2"]
+        
         self.model =  PeaksModel()
         self.model.find_peaks(rox_data)
 

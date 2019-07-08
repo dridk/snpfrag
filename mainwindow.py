@@ -33,8 +33,8 @@ class MainWindow(QMainWindow):
             self.list_view.addItem(file)
 
     def fsa_changed(self):
-        self.fsa_widget.set_file(self.list_view.currentItem().text())
-
+        #self.fsa_widget.set_file(self.list_view.currentItem().text())
+        pass
 
 
 if __name__ == "__main__":
