@@ -31,7 +31,7 @@ class VCFReader(object):
             return
         device = open(self.filename,"rb")
         snps = []
-
+        self.genotypes = []
         for snp in config.SNPS:
             device.seek(0)
             reader = vcf.Reader(device)
@@ -43,8 +43,11 @@ class VCFReader(object):
                 gt = str(variant.genotype(sample).gt_bases).replace("/","")
                 igt = iupac.genotype_to_iupac(gt)
                 snps.append(igt)
+                self.genotypes.append(gt)
             else:
                 snps.append("N")
+                self.genotypes.append(snp["ref"]*2)
+
 
         self.sample_id = "".join(snps)
 
@@ -63,6 +66,7 @@ class FSAReader(object):
         self.calibrate_rox(self.rox_data)
 
         snps = []
+        self.genotypes = []
         for snp in config.SNPS:
             fmin = self.unscale(snp["frag_min"])
             fmax = self.unscale(snp["frag_max"])
@@ -84,6 +88,7 @@ class FSAReader(object):
                 genotype = genotype * 2
 
             snps.append(iupac.genotype_to_iupac(genotype))
+            self.genotypes.append(genotype)
 
         self.sample_id = "".join(snps)
 

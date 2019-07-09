@@ -7,6 +7,7 @@ from fsawidget import *
 from glob import glob
 import config
 from reader import FSAReader, VCFReader
+from snpview import SnpView
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -16,6 +17,7 @@ class MainWindow(QMainWindow):
         self.list_view = QListWidget()
 
         self.tab_widget = QTabWidget()
+        self.snp_view = SnpView()
 
         dock = QDockWidget()
         dock.setWidget(self.list_view)
@@ -36,13 +38,16 @@ class MainWindow(QMainWindow):
 
             
         self.addDockWidget(Qt.LeftDockWidgetArea, dock)
-        self.set_fsa_directory("olddata")
         self.list_view.currentItemChanged.connect(self.fsa_changed)
 
         self.tab_widget.addTab(self.view, "view")
         self.tab_widget.addTab(self.grid_widget, "snps")
 
-        self.setCentralWidget(self.tab_widget)
+        self.splitter = QSplitter(Qt.Vertical)
+        self.splitter.addWidget(self.tab_widget)
+        self.splitter.addWidget(self.snp_view)
+
+        self.setCentralWidget(self.splitter)
 
         self.resize(800,400)
 
@@ -50,9 +55,12 @@ class MainWindow(QMainWindow):
         run_action = toolbar.addAction("Run", self.run_analyse)
         self.readers = {}
 
+        self.set_directory("olddata")
+        self.run_analyse()
 
 
-    def set_fsa_directory(self, dir):
+
+    def set_directory(self, dir):
         self.dir = dir 
         self.list_view.clear()
         for file in glob(f"{dir}/*.fsa"):
@@ -68,6 +76,9 @@ class MainWindow(QMainWindow):
             #vcf_reader.compute()
             fsa_reader.compute()
             self.load_chart(fsa_reader)
+            self.snp_view.model.set_vcf_reader(vcf_reader)
+            self.snp_view.model.set_fsa_reader(fsa_reader)
+            self.snp_view.model.load()
 
     def run_analyse(self):
         self.readers = {}
