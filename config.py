@@ -66,6 +66,6 @@ SNPS= [
     "ref": "G",
     "alt": "A",
     "frag_min": 130,
-    "frag_max": 132
+    "frag_max": 134
 },
 ]
