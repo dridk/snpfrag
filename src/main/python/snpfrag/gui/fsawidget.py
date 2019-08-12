@@ -4,7 +4,9 @@ from PySide2.QtCore import *
 from PySide2.QtCharts import QtCharts as qtc
 
 from snpfrag.gui.ficon import FIcon
+from snpfrag.gui.calibrationwidget import CalibrationWidget
 from snpfrag.core.fsareader import FsaReader
+from snpfrag.config import DEFAULT_CHANNEL, DEFAULT_SCALES
 
 class FsaWidget(QWidget):
     def __init__(self, parent = None):
@@ -27,6 +29,7 @@ class FsaWidget(QWidget):
         self.toolbar.addAction(FIcon(0xf293),"rescale", self.chart.zoomReset)
         self.toolbar.addAction(FIcon(0xf6ec),"Zoom in", self.chart.zoomIn)
         self.toolbar.addAction(FIcon(0xf6eb),"Zoom out", self.chart.zoomOut)
+        self.toolbar.addAction(FIcon(0xf01a),"configure", self._on_adjust_clicked)
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.toolbar)
@@ -40,15 +43,13 @@ class FsaWidget(QWidget):
 
     def set_filename(self, filename):
         self.reader.set_filename(filename)
-
-        ROX_SIZE = [35, 50, 75, 100, 139, 150, 160, 200, 250, 300, 340, 350, 400, 450, 490 , 500 ]
-        self.reader.compute_regression("DATA4", ROX_SIZE)
-        self._load_dye_menu()
+        self.reader.compute_regression(DEFAULT_CHANNEL, DEFAULT_SCALES)
         self.plot()
+        self._load_dye_menu()
 
     def plot(self):
         self.series = {}
-
+        self.chart.removeAllSeries()
         for dye in self.reader.dye_names:
             channel = self.reader.channel_from_dye_name(dye)
             serie = qtc.QLineSeries()        
@@ -68,10 +69,11 @@ class FsaWidget(QWidget):
     def _load_dye_menu(self):
         """ read and fill combobox with dye names """ 
         self.dye_menu.clear()
-        for dye in self.reader.dye_names:
-            action = self.dye_menu.addAction(dye)
+        for serie in self.chart.series():
+            action = self.dye_menu.addAction(serie.name())
             action.setCheckable(True)
             action.setChecked(True)
+            action.setIcon(FIcon(0xf12f, serie.pen().color()))
             action.triggered.connect(self._on_dye_clicked)
             self.dye_menu.addAction(action)
 
@@ -80,7 +82,10 @@ class FsaWidget(QWidget):
         dye_name  = self.sender().text()
         self.series[dye_name].setVisible(checked)
 
-
+    def _on_adjust_clicked(self):
+        dialog = CalibrationWidget()
+        dialog.set_filename(self.reader.filename)
+        dialog.exec_()
 
 
 

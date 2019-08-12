@@ -111,18 +111,20 @@ class FsaReader(object):
         # Get peaks data from channel 
         data = self.data(channel)
 
+        self.scales = scales
+
         # Detect peaks 
-        peaks = find_peaks(data, height=height, distance=distance)[0]
+        self.peaks = find_peaks(data, height=height, distance=distance)[0]
 
         # Keep only last peaks according length of scales 
         # Because first peaks are probabily noise 
         l_scales = len(scales)
-        l_peaks = len(peaks)
+        l_peaks = len(self.peaks)
         diff = l_peaks - l_scales 
-        peaks = peaks[diff:]
+        self.peaks = self.peaks[diff:]
 
         # Do a linear regression 
-        self.regression = linregress(peaks,scales)
+        self.regression = linregress(self.peaks,scales)
 
 
 
