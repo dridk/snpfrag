@@ -45,7 +45,7 @@ class VCFReader(object):
                 snps.append(igt)
                 self.genotypes.append(gt)
             else:
-                snps.append("N")
+                snps.append(snp["ref"])
                 self.genotypes.append(snp["ref"]*2)
 
 
@@ -71,21 +71,21 @@ class FSAReader(object):
             fmin = self.unscale(snp["frag_min"])
             fmax = self.unscale(snp["frag_max"])
 
-            peak_wt = find_peaks(self.wt_data[fmin:fmax], height=80, distance=20)[0]
-            peak_mt = find_peaks(self.mt_data[fmin:fmax], height=80, distance=20)[0]
+            peak_wt = find_peaks(self.wt_data[fmin:fmax], height=200, distance=20)[0]
+            peak_mt = find_peaks(self.mt_data[fmin:fmax], height=200, distance=20)[0]
 
             genotype = str()
-            if peak_wt: 
-                genotype += snp["ref"]
+            # if peak_wt: 
+            #     genotype += snp["ref"]
             
-            if peak_mt:
-                genotype += snp["alt"]
+            # if peak_mt:
+            #     genotype += snp["alt"]
 
-            if len(genotype) == 0:
-                genotype == "NN"
+            # if len(genotype) == 0:
+            #     genotype == "NN"
 
-            if len(genotype) == 1:
-                genotype = genotype * 2
+            # if len(genotype) == 1:
+            #     genotype = genotype * 2
 
             snps.append(iupac.genotype_to_iupac(genotype))
             self.genotypes.append(genotype)

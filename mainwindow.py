@@ -9,6 +9,8 @@ import config
 from reader import FSAReader, VCFReader
 from snpview import SnpView
 
+import qrcode
+
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
         super().__init__()
@@ -47,7 +49,32 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.tab_widget)
         self.splitter.addWidget(self.snp_view)
 
+
         self.setCentralWidget(self.splitter)
+
+        self.barcode_widget = QWidget()
+        self.barcode_layout = QVBoxLayout()
+        self.barcode_img = QLabel()
+        self.barcode_img.setPixmap(QPixmap("qrcode.png"))
+        self.barcode_img.setMinimumSize(64,64)
+        self.barcode_edit = QLineEdit()
+        self.barcode_edit.setAlignment(Qt.AlignCenter)
+
+
+        self.barcode_layout.addWidget(self.barcode_img)
+        self.barcode_layout.addWidget(self.barcode_edit)
+        self.barcode_layout.addStretch()
+        self.barcode_widget.setLayout(self.barcode_layout)
+
+        font = QFont()
+        font.setPixelSize(20)
+        self.barcode_edit.setFont(font)
+
+        barcode_dock = QDockWidget()
+        barcode_dock.setWidget(self.barcode_widget)
+        self.addDockWidget(Qt.LeftDockWidgetArea,barcode_dock)
+
+
 
         self.resize(800,400)
 
@@ -55,7 +82,7 @@ class MainWindow(QMainWindow):
         run_action = toolbar.addAction("Run", self.run_analyse)
         self.readers = {}
 
-        self.set_directory("olddata")
+        self.set_directory("R10")
         self.run_analyse()
 
 
@@ -80,6 +107,15 @@ class MainWindow(QMainWindow):
             self.snp_view.model.set_fsa_reader(fsa_reader)
             self.snp_view.model.load()
 
+        self.create_barcode(vcf_reader.sample_id)
+
+
+    def create_barcode(self,ident):
+        self.barcode_edit.setText(ident)
+        img = qrcode.make(ident)
+        img.save("qrcode.png")
+        self.barcode_img.setPixmap(QPixmap("qrcode.png"))
+
     def run_analyse(self):
         self.readers = {}
 
@@ -90,7 +126,7 @@ class MainWindow(QMainWindow):
             vcf_file = self.dir + "/" + basename + ".vcf.gz"
             fsa_file = self.dir + "/" + basename + ".fsa"
             print("analyse ", basename)
-            self.readers[basename] = [None, FSAReader(fsa_file)]
+            self.readers[basename] = [VCFReader(vcf_file), FSAReader(fsa_file)]
             item.setIcon(QIcon.fromTheme("system-run"))
 
     def create_series(self, reader, m, M):

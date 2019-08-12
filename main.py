@@ -73,7 +73,7 @@ class FragmentWidget(qtc.QChartView):
         self.chart.addSeries(self.mt_series)
         self.chart.createDefaultAxes()
         self.setRubberBand(qtc.QChartView.RectangleRubberBand)
-        self.chart.axisX().setRange(269,272)
+        self.chart.axisX().setRange(120,200)
         #self.chart.axisY().setRange(0,2000)
 
         self.setChart(self.chart)
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     
     wlist = []
-    for filename in glob("olddata/*.fsa"):
+    for filename in glob("R10/*.fsa"):
         w = FragmentWidget(filename)
         wlist.append(w)
         layout.addWidget(w)
