@@ -73,8 +73,8 @@ class FragmentWidget(qtc.QChartView):
         self.chart.addSeries(self.mt_series)
         self.chart.createDefaultAxes()
         self.setRubberBand(qtc.QChartView.RectangleRubberBand)
-        self.chart.axisX().setRange(0,180)
-        self.chart.axisY().setRange(0,2000)
+        self.chart.axisX().setRange(120,200)
+        #self.chart.axisY().setRange(0,2000)
 
         self.setChart(self.chart)
 
@@ -88,15 +88,37 @@ if __name__ == "__main__":
 
     layout = QVBoxLayout()
 
+
+ 
+
     
     wlist = []
-    for filename in glob("data/*.fsa"):
+    for filename in glob("R10/*.fsa"):
         w = FragmentWidget(filename)
         wlist.append(w)
         layout.addWidget(w)
 
     widget = QWidget()
-    widget.setLayout(layout)
+    lineedit = QLineEdit()
+
+    main_layout = QVBoxLayout()
+    main_layout.addWidget(lineedit)
+    main_layout.addLayout(layout)
+
+    def set_range():
+        min, max = lineedit.text().split(",")
+        for w in wlist:
+            w.chart.removeAxis(w.chart.axisY())
+            w.chart.removeAxis(w.chart.axisX())
+
+            w.chart.createDefaultAxes()
+            w.chart.axisX().setRange(min,max)
+
+
+
+    widget.setLayout(main_layout)
+
+    lineedit.returnPressed.connect(set_range)
 
 
 
