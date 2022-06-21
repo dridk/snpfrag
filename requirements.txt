@@ -1,5 +1,5 @@
 biopython==1.73
-numpy==1.16.4
+numpy==1.22.0
 pkg-resources==0.0.0
 PySide2==5.12.4
 shiboken2==5.12.4
